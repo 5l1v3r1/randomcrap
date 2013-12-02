@@ -6,16 +6,6 @@ use strict;
 
 use IO::Socket;
 
-# Add second nick later for if nick is reserved
-# add password to authenticate nick 
-# Make nice data structure to keep this data in perhaps a hash called bot
-#
-# my %bot = (
-#  server => "irc.freenode.net",
-#  nick => "aaaaaaaa",
-#  channel => "#blah"
-#  )
-#
 my $server = "irc.freenode.net";
 my $nick = "aaaaaaaaaa";
 my $login ="aaaaaaaaaa";
@@ -28,11 +18,17 @@ my $socket = new IO::Socket::INET (
 	PeerPort => '6667',
 	Proto => 'tcp'
 ) or die "Error in socket creation, socket could be in use: $!\n";
+ 
+# Add second nick later for if nick is reserved
+# add password to authenticate nick 
+# Make nice data structure to keep this data in perhaps a hash called bot
 
-# Write function to do this
+sub setNick {
 print $socket "NICK $nick\r\n";
 print $socket "USER $login 8 *:Sample IRC Bot In Perl\r\n";
+} 
 
+sub connectCheckNick {
 # According to this link:
 # http://oreilly.com/pub/h/1964
 # Read lines from server until it tells us we have connected
@@ -47,9 +43,22 @@ while (my $input = <$socket>) {
 		# // Later make it switch to second nickname
 	}
 }
+}
+
+sub joinChan {
 # Now we can join a channel!
 #   Write function to do this
 print $socket "JOIN $channel\r\n";
+ 
+}
+
+
+
+&setNick;
+
+&connectCheckNick;
+
+&joinChan;
 
 # Keep reading the lines from the server respond to ping with pong
 while (my $input = <$socket>) {
@@ -58,6 +67,7 @@ while (my $input = <$socket>) {
 		#Respond to ping
 		print $socket "PONG $1\r\n";
 	}
+	# Everything happens here.
 	else {
 		#Print the raw line received by bot
 		print "$input\n";
