@@ -1,55 +1,66 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
-#use strict;
+use strict;
 #use warnings;
 
-# IRC Bot for I2P
+
+use IO::Socket;
+
+# Add second nick later for if nick is reserved
+# add password to authenticate nick 
+# Make nice data structure to keep this data in perhaps a hash called bot
 #
+# my %bot = (
+#  server => "irc.freenode.net",
+#  nick => "aaaaaaaa",
+#  channel => "#blah"
+#  )
 #
-use IO::Socket::INET;
+my $server = "irc.freenode.net";
+my $nick = "aaaaaaaaaa";
+my $login ="aaaaaaaaaa";
+my $channel = "#testbot";
 
-# Flush after every write
-$| = 1;
-
-my ($socket,$client_socket);
-
-# Creating object interface of IO::Socket::INET which internally
+#my $socket;
 # does socket creation,binding and listening at the specified port address.
-$socket = new IO::Socket::INET (
-	Localhost => 'irc.freenode.net',
-	Localport => '6668',
-	Proto => 'tcp',
-	Listen => 5,
-	Reuse => 1
+my $socket = new IO::Socket::INET (
+	PeerAddr => $server,
+	PeerPort => '6667',
+	Proto => 'tcp'
 ) or die "Error in socket creation, socket could be in use: $!\n";
 
+# Write function to do this
+print $socket "NICK $nick\r\n";
+print $socket "USER $login 8 *:Sample IRC Bot In Perl\r\n";
 
-while (1) {
-#print "TCP Connection success!\n";
+# According to this link:
+# http://oreilly.com/pub/h/1964
+# Read lines from server until it tells us we have connected
+while (my $input = <$socket>) {
+	# Check numerical responses from the server
+	if ($input =~ /004/) {
+		# Means we are logged in
+		last;
+	}
+	elsif ($input =~ /433/) {
+		die "Nickname is in use";
+		# // Later make it switch to second nickname
+	}
+}
+# Now we can join a channel!
+#   Write function to do this
+print $socket "JOIN $channel\r\n";
 
+# Keep reading the lines from the server respond to ping with pong
+while (my $input = <$socket>) {
+	chop $input;
+	if ($input =~ /^PING(.*)$/i) {
+		#Respond to ping
+		print $socket "PONG $1\r\n";
+	}
+	else {
+		#Print the raw line received by bot
+		print "$input\n";
 
-# This is I2P,lets let it sleep for  200 before printing out data read
-# from the server
-#sleep(200);
-# Read socket data sent by server
-
-
-
-my $data = "";
-#$data = <$socket>;
-# We can read data from socket with recv() in IO::Socket::INET
-
-$socket->recv($data,1024);
-print "Received from server : $data\n";
-
-# Write to server and set nick etc. 
-# Lookup format for doing this.
-#
-#
-# Try kyk na hoe python code dit doen met while loop
-# en consider om
-
-#sleep(10);
-$socket->close();
-
+	}
 }
