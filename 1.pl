@@ -5,8 +5,8 @@ use strict;
 
 
 use IO::Socket;
-
-my $server = "irc.freenode.net";
+# This setup works with I2p but for some reason only if I have my irc client open and connected to irc2p
+my $server = "127.0.0.1";
 my $nick = "aaaaaaaaaa";
 my $login ="aaaaaaaaaa";
 my $channel = "#testbot";
@@ -15,7 +15,7 @@ my $channel = "#testbot";
 # does socket creation,binding and listening at the specified port address.
 my $socket = new IO::Socket::INET (
 	PeerAddr => $server,
-	PeerPort => '6667',
+	PeerPort => '6668',
 	Proto => 'tcp'
 ) or die "Error in socket creation, socket could be in use: $!\n";
  
