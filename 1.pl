@@ -5,6 +5,10 @@ use strict;
 
 
 use IO::Socket;
+use URI::Find;
+use URI::Find::Simple qw(list_uris);
+
+
 # This setup works with I2p but for some reason only if I have my irc client open and connected to irc2p
 my $server = "127.0.0.1";
 my $nick = "aaaaaaaaaa";
@@ -52,6 +56,9 @@ print $socket "JOIN $channel\r\n";
  
 }
 
+#sub checkForURL {
+#my @list = list_uris($_[0]); 
+#}
 
 
 &setNick;
@@ -68,9 +75,19 @@ while (my $input = <$socket>) {
 		print $socket "PONG $1\r\n";
 	}
 	# Everything happens here.
-	else {
+	else { 
+		# Put this in a sub later
+		my @list = list_uris($input);
+		my $how_many_found = @list;
+		if ($how_many_found > 0) {
+			print $list[0];print "\n";
 		#Print the raw line received by bot
-		print "$input\n";
+		#print "$input\n";
+		#Next make it print the title
+		#Make it work with .i2p and .onion sites.
+		#Add other cool functions like regular updates on btc/usd
+		#prices etc
 
 	}
+}
 }
