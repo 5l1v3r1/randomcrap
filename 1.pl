@@ -7,7 +7,7 @@ use strict;
 use IO::Socket;
 use URI::Find;
 use URI::Find::Simple qw(list_uris);
-
+use URI::Title qw(title);
 
 # This setup works with I2p but for some reason only if I have my irc client open and connected to irc2p
 my $server = "127.0.0.1";
@@ -79,8 +79,14 @@ while (my $input = <$socket>) {
 		# Put this in a sub later
 		my @list = list_uris($input);
 		my $how_many_found = @list;
-		if ($how_many_found > 0) {
-			print $list[0];print "\n";
+		if ($how_many_found > 0) { 
+			my $title = title($list[0]);
+            print $socket "PRIVMSG $channel $list[0]\n";
+			# print $irc "PRIVMSG $chan :$'\n";
+			print $socket "PRIVMSG $channel Title: $title\n";
+			#print $list[0];print "\n";
+
+			# Make it print title first before putting in sub
 		#Print the raw line received by bot
 		#print "$input\n";
 		#Next make it print the title
