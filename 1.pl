@@ -56,9 +56,18 @@ print $socket "JOIN $channel\r\n";
  
 }
 
-#sub checkForURL {
-#my @list = list_uris($_[0]); 
-#}
+sub checkForURL {          
+# Put this in a sub later
+my @list = list_uris(@_);
+my $how_many_found = @list;
+
+if ($how_many_found > 0) { 
+my $title = title($list[0]);
+print $socket "PRIVMSG $channel $list[0]\n";
+print $socket "PRIVMSG $channel Title: $title\n";
+
+}		
+}
 
 
 &setNick;
@@ -75,25 +84,9 @@ while (my $input = <$socket>) {
 		print $socket "PONG $1\r\n";
 	}
 	# Everything happens here.
-	else { 
-		# Put this in a sub later
-		my @list = list_uris($input);
-		my $how_many_found = @list;
-		if ($how_many_found > 0) { 
-			my $title = title($list[0]);
-            print $socket "PRIVMSG $channel $list[0]\n";
-			# print $irc "PRIVMSG $chan :$'\n";
-			print $socket "PRIVMSG $channel Title: $title\n";
-			#print $list[0];print "\n";
-
-			# Make it print title first before putting in sub
-		#Print the raw line received by bot
-		#print "$input\n";
-		#Next make it print the title
-		#Make it work with .i2p and .onion sites.
-		#Add other cool functions like regular updates on btc/usd
-		#prices etc
-
+else { 
+# Do something
+&checkForURL($input);
 	}
 }
-}
+
