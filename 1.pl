@@ -8,10 +8,12 @@ use IO::Socket;
 use URI::Find;
 use URI::Find::Simple qw(list_uris);
 use URI::Title qw(title);
+use WWW::Mechanize;
+use LWP::Protocol::socks;
 
 # This setup works with I2p but for some reason only if I have my irc client open and connected to irc2p
 my $server = "127.0.0.1";
-my $nick = "aaaaaaaaaa";
+my $nick = "aaajajaaaaahhaaaa";
 my $login ="aaaaaaaaaa";
 my $channel = "#testbot";
 
@@ -27,6 +29,9 @@ my $socket = new IO::Socket::INET (
 # add password to authenticate nick 
 # Make nice data structure to keep this data in perhaps a hash called bot
 
+# Need to add method for if nick is in use what todo.
+# Also need to be able to handle random disconnects and connect again and
+# authenticate for nick to nickserv again
 sub setNick {
 print $socket "NICK $nick\r\n";
 print $socket "USER $login 8 *:Sample IRC Bot In Perl\r\n";
@@ -60,12 +65,37 @@ sub checkForURL {
 # Put this in a sub later
 my @list = list_uris(@_);
 my $how_many_found = @list;
+# If this is an .i2p address use method  localhost:4444
+# else use tor socks proxy 
+# both .onion and normal urls are going to be fetched using tor.
+# So no need to check if a url is an .onion url
+if ($how_many_found > 0) {
 
-if ($how_many_found > 0) { 
-my $title = title($list[0]);
-print $socket "PRIVMSG $channel $list[0]\n";
+# Put this shit in a method too!
+#my $title = title($list[0]);
+my $url = $list[0];
+
+
+if ($url =~ /\.(i2p.?)\b/i) {
+	print "We have an eepsite: $url\n";
+	# Call some method to get title of eepsite.
+}
+
+# Is this an eepsite. If it is do something,else just use socks connection
+# to tor on localhost and we assume it is a regular website or .onion
+
+# This down here could go in its own method
+my $mech = WWW::Mechanize->new(timeout => 60*5);
+$mech->proxy(['http','https'],'socks://localhost:9050');
+$mech->get($url);
+my $title = $mech->title();
+# Up to about here.
+
+# If the refactoring of this code works. Then make this sub return
+# the url and the title and put these print statements in seperate sub.
+print $socket "PRIVMSG $channel $url\n";
 print $socket "PRIVMSG $channel Title: $title\n";
-
+	  
 }		
 }
 
