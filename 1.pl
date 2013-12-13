@@ -62,7 +62,7 @@ print $socket "JOIN $channel\r\n";
 }
 
 sub getStuffOverTor {
-my $url = @_;
+my $url = $_[0];
 my $mech = WWW::Mechanize->new(timeout => 60*5);
 $mech->proxy(['http','https'],'socks://localhost:9050');
 $mech->get($url);
