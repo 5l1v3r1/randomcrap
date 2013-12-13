@@ -61,6 +61,16 @@ print $socket "JOIN $channel\r\n";
  
 }
 
+sub getStuffOverTor {
+my $url = @_;
+my $mech = WWW::Mechanize->new(timeout => 60*5);
+$mech->proxy(['http','https'],'socks://localhost:9050');
+$mech->get($url);
+my $title = $mech->title();
+# Up to about here.
+return $title;
+} 
+
 sub checkForURL {          
 # Put this in a sub later
 my @list = list_uris(@_);
@@ -74,28 +84,32 @@ if ($how_many_found > 0) {
 # Put this shit in a method too!
 #my $title = title($list[0]);
 my $url = $list[0];
+# End of function
+# Return $how_many_found
+# and return $url
+# return ($how_many_found,$url);
+#
+# later in code
+# if ($how_many_found > 0) {
+# 
 
-
-if ($url =~ /\.(i2p.?)\b/i) {
+my $is_eepsite = ($url =~ /\.(i2p.?)\b/i); # Put this in method later
+if ($is_eepsite) {
 	print "We have an eepsite: $url\n";
 	# Call some method to get title of eepsite.
 }
+else {
+my $title = getStuffOverTor($url);
 
 # Is this an eepsite. If it is do something,else just use socks connection
 # to tor on localhost and we assume it is a regular website or .onion
 
-# This down here could go in its own method
-my $mech = WWW::Mechanize->new(timeout => 60*5);
-$mech->proxy(['http','https'],'socks://localhost:9050');
-$mech->get($url);
-my $title = $mech->title();
-# Up to about here.
 
 # If the refactoring of this code works. Then make this sub return
 # the url and the title and put these print statements in seperate sub.
 print $socket "PRIVMSG $channel $url\n";
 print $socket "PRIVMSG $channel Title: $title\n";
-	  
+}	  
 }		
 }
 
